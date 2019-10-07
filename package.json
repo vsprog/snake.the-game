@@ -1,0 +1,16 @@
+{
+  "name": "snake",
+  "version": "1.0.0",
+  "description": "first lesson project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "vasiliy.s",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^2.26.3"
+  },
+  "dependencies": {}
+}
