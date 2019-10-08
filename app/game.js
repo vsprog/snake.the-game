@@ -1,14 +1,15 @@
-export default class Snake {
+import Snake from './components/snake.js';
+import Cell from './components/cell.js';
+
+export default class Game{
   constructor() {
     this._board = [];
     this._boardWidth = 70;
-    this._boardHeight = 45;
-    this._snakeX;
-    this._snakeY;
-    this._snakeLength;
-    this._snakeDirection;
+    this._boardHeight = 45;    
     this._score = 0;
-
+    this._snake = new Snake(Math.floor(this._boardWidth / 2), Math.floor(this._boardHeight / 2), 5, 'Up');
+    this._gameLoopTimerId = null;
+    this._isPause = false;
     window.onkeyup = this._enterKey.bind(this);
 
     this._initGame();
@@ -17,16 +18,14 @@ export default class Snake {
   }
 
   _initGame() {
-    const boardElement = document.getElementsByClassName('board')[0];
-    this._scoreElement = document.getElementById('score');
+    const boardElement = document.querySelector('.board');
+    this._scoreElement = document.querySelector('#score');
     this._scoreElement.innerText = this._score;
     
-    let row, cell;
-
     for (let y = 0; y < this._boardHeight; y++) {
-      row = [];
+      let row = [];
       for (let x = 0; x < this._boardWidth; x++) {
-        cell = {};
+        let cell = new Cell();
         cell.element = document.createElement('div');
         cell.element.className = 'cell';
         boardElement.appendChild(cell.element);
@@ -38,59 +37,52 @@ export default class Snake {
 
   _startGame() {
     this._clearField();
-
-    this._snakeX = Math.floor(this._boardWidth / 2);
-    this._snakeY = Math.floor(this._boardHeight / 2);
-    this._snakeLength = 5;
-    this._snakeDirection = 'Up';
     this._updateSnakePosition();
     this._placeApple();
   }
 
-  _gameLoop() {
-    switch (this._snakeDirection) {
-      case 'Up':
-        this._snakeY--;
-        break;
-      case 'Down':
-        this._snakeY++;
-        break;
-      case 'Left':
-        this._snakeX--;
-        break;
-      case 'Right':
-        this._snakeX++;
-        break;
-    }
-
+  _gameLoop() {    
+    this._moveSnake();
     this._checkMapEdge();
-
-    // Tail collision
-    if (this._board[this._snakeY][this._snakeX].snake > 0) {
-      this._startGame();
-    }
-
-    // Collect apples
-    if (this._board[this._snakeY][this._snakeX].apple === 1) {
-      this._snakeLength++;
-      this._scoreElement.innerText = ++this._score;
-      this._board[this._snakeY][this._snakeX].apple = 0;
-      this._placeApple();
-    }
-
-    // Update the board at the new snake position
+    this._deathHandler();
+    this._collectApple();
     this._updateSnakePosition();
-
-    // Loop over the entire board, and update every cell
     this._renderField();
 
-    this._gameLoop = this._gameLoop.bind(this);
-    setTimeout(this._gameLoop, 100); //  1000 / (this._snakeLength - 1) + 200
-    
+    this._gameLoop = this._gameLoop.bind(this);    
+    this._gameLoopTimerId = setTimeout(this._gameLoop, 100); //  1000 / (this._snakeLength - 1) + 200    
+  }
+
+  _moveSnake() {
+    switch (this._snake.direction) {
+      case 'Up':
+        this._snake.coordY--;
+        break;
+      case 'Down':
+        this._snake.coordY++;
+        break;
+      case 'Left':
+        this._snake.coordX--;
+        break;
+      case 'Right':
+        this._snake.coordX++;
+        break;
+    }
+  }
+
+  _collectApple() {
+    let cell = this._board[this._snake.coordY][this._snake.coordX];
+    if (cell.apple === 1) {
+      this._snake.length++;
+      this._scoreElement.innerText = ++this._score;
+      cell.apple = 0;
+      this._placeApple();
+    }
   }
 
   _updateSnakePosition() {
-    this._board[this._snakeY][this._snakeX].snake = this._snakeLength;
+    let cell = this._board[this._snake.coordY][this._snake.coordX];
+    cell.snake = this._snake.length;
   }
 
   _renderField() {
@@ -119,39 +111,20 @@ export default class Snake {
   }
 
   _checkMapEdge() {
-    if (this._snakeX < 0) this._snakeX = this._boardWidth - 1;
-    if (this._snakeY < 0) this._snakeY = this._boardHeight - 1;
-    if (this._snakeX >= this._boardWidth) this._snakeX = 0;
-    if (this._snakeY >= this._boardHeight) this._snakeY = 0;
+    if (this._snake.coordX < 0) this._snake.coordX = this._boardWidth - 1;
+    if (this._snake.coordY < 0) this._snake.coordY = this._boardHeight - 1;
+    if (this._snake.coordX >= this._boardWidth) this._snake.coordX = 0;
+    if (this._snake.coordY >= this._boardHeight) this._snake.coordY = 0;
   }
 
   _clearField() {
     for (let y = 0; y < this._boardHeight; ++y) {
       for (let x = 0; x < this._boardWidth; ++x) {
-        this._board[y][x].snake = 0;
-        this._board[y][x].apple = 0;
+        let cell = this._board[y][x];
+        cell.snake = 0;
+        cell.apple = 0;
       }
     }
-  }
-
-  _enterKey(event) {
-    switch (event.key) {
-      case 'ArrowUp':
-        this._snakeDirection !== 'Down' && (this._snakeDirection = 'Up');
-        break;
-      case 'ArrowDown':
-        this._snakeDirection !== 'Up' && (this._snakeDirection = 'Down');
-        break;
-      case 'ArrowLeft':
-        this._snakeDirection !== 'Right' && (this._snakeDirection = 'Left');
-        break;
-      case 'ArrowRight':
-        this._snakeDirection !== 'Left' && (this._snakeDirection = 'Right');
-        break;
-      default:
-        break;
-    }
-    event.preventDefault();
   }
 
   _placeApple() {
@@ -161,5 +134,50 @@ export default class Snake {
     if (cell.snake == 0) {
       cell.apple = 1;
     }
+  }
+
+  _deathHandler() {
+    // сделать несколько жизней
+    // Tail collision
+    let cell = this._board[this._snake.coordY][this._snake.coordX];
+    if (cell.snake > 0) {
+      this._startGame();
+    }
+  }
+
+  _enterKey(event) {
+    switch (event.key) {
+      case 'ArrowUp':
+        this._snake.direction !== 'Down' && (this._snake.direction = 'Up');
+        break;
+      case 'ArrowDown':
+        this._snake.direction !== 'Up' && (this._snake.direction = 'Down');
+        break;
+      case 'ArrowLeft':
+        this._snake.direction !== 'Right' && (this._snake.direction = 'Left');
+        break;
+      case 'ArrowRight':
+        this._snake.direction !== 'Left' && (this._snake.direction = 'Right');
+        break;
+      case 'Escape':
+        this._pauseHandler();
+        break;
+      default:
+        break;
+    }
+    event.preventDefault();
+  }
+
+  _pauseHandler() {
+    this._isPause = !this._isPause;
+    let pauseElement = document.querySelector('.pause');
+    if (this._isPause) {
+      clearTimeout(this._gameLoopTimerId);
+      pauseElement.classList.remove('hidden');
+    } else {
+      this._gameLoop();
+      pauseElement.classList.add('hidden');
+    }
+    
   }
 }
