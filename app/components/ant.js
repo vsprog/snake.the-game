@@ -1,80 +1,99 @@
-import Fsm from "./fsm";
+import Fsm from "./fsm.js";
+import Lee from "./lee.js";
 
 export default class Ant {
   constructor(coordX, coordY) {
     this.coordX = coordX;
     this.coordY = coordY;
+    this.prevX = coordX;
+    this.prevY = coordY;
+    this._gameField = null;
+    this.isRunning = false;
+    
+    this._leftHemisphere = new Lee([]);
     this._brain = new Fsm();
+    this._brain.pushState(this._hunt.bind(this));
   }
 
-  
+  move(y, x, isConvertable) {
+    this.prevX = this.coordX;
+    this.prevY = this.coordY;
+    let newX = isConvertable ? this._converCoordinates(x, this.prevX) : x;
+    let newY = isConvertable ? this._converCoordinates(y, this.prevY) : y;
 
-  
-/* ---------------------------------------------------------------------------------------------------------- */
-  _renderField() {
-    for (let y = 0; y < this._boardHeight; y++) {
-      for (let x = 0; x < this._boardWidth; x++) {
-        let cell = this._board[y][x];
+    this.coordX = newX;
+    this.coordY = newY;
+  }
 
-        if (cell.ant === 1) {
-          this._changeCell('cell_ant', cell.element);
-        } else if (cell.wall === 1) {
-          this._changeCell('cell_wall', cell.element);
-        } else {
-          this._changeCell('cell_field', cell.element);
-        }
-      }
+  _converCoordinates(a, b) {
+    return a == b ? b : a == (b-1) ? (b+1) : (b-1);
+  }
+
+  updateState(board) {
+    this._gameField = board;
+    this._brain.update();    
+  }
+
+  _hunt() {
+    let matrix = this._convertGameFieldToMatrix();
+    let minDistToSnakeCoord = this._minDistanceToSnake();
+    this._leftHemisphere.matrix = matrix;
+
+    if(!minDistToSnakeCoord || !~this._leftHemisphere.distance) return;
+
+    let pathToSnake = this._leftHemisphere.pathFinder(this.coordY, this.coordX, minDistToSnakeCoord[0], minDistToSnakeCoord[1]);
+    let newCoords = pathToSnake[1]; // [0] не работает, разобраться
+
+    this.move(newCoords[0], newCoords[1], false); 
+
+    if(this.isRunning) {
+      this._brain.popState();
+      this._brain.pushState(this._runAway.bind(this)); 
     }
   }
 
-  _changeCell(cssClass, element) {
-    let arr = ['cell_ant', 'cell_wall', 'cell_field'];
-    element.classList.add(cssClass);
-    arr
-      .filter(cl => cl !== cssClass)
-      .forEach(cl => element.classList.remove(cl));
+  _runAway() {
+    if(!this.isRunning) {
+      this._brain.popState(); 
+      this._brain.pushState(this._hunt.bind(this)); 
+    }
+
   }
 
-  _moveAnt() {//вынести в game
-    let currentCoords = this._getAntCoord();
-    let path = [/*[0,0],*/[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,9]]; //lee.pathFinder
-    // если в pathFinder нет текущего местоположения, то брать первое в массиве
-    //let index;
-    // path.find((ar, i) => {
-    //   index = i;
-    //   return ar[0] == currentCoords[0] && ar[1] == currentCoords[1];
-    // });
+  _convertGameFieldToMatrix(){
+    let result = this._gameField.pasture.map(row => row.map(c => c.ant == 1 || c.wall == 1 ?  -1 : 0));
     
-    //let newCoords = path[index+1];
-    let newCoords = path[0];
+    return result;
+  }
 
-    if (newCoords) {
-      this._board[currentCoords[0]][currentCoords[1]].ant = 0;
-      this._board[newCoords[0]][newCoords[1]].ant = 1;
-    }
+  _minDistanceToSnake() {
+    let arr = this._getFullSnakeCoords();
+    return arr[0];
+    // let distCoords = arr.reduce((acc, curr) => {
+    //   let dist = this._heuristic(curr[0], curr[1], this.coordX, this.coordY);
+    //   acc[dist] = curr;
+    //   return acc;
+    // }, {});
+    // let minDist = Math.min(...Object.keys(distCoords));
     
+    // return distCoords[minDist];
   }
 
-  _getAntCoord() {
-    for (let y = 0; y < this._boardHeight; y++) {
-      for (let x = 0; x < this._boardWidth; x++) {
-        let cell = this._board[y][x];
-        if (cell.ant == 1) {
-          return [y, x];
+  _heuristic(x1, y1, x2, y2) {
+    return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+  }
+
+  _getFullSnakeCoords() {
+    let result = [];
+    this._gameField.pasture.forEach((row, j) => {
+      row.forEach((c, i) => {
+        if(c.snake > 0) {
+          result.push([j, i]);
         }
-      }
-    }
+      });
+    });
+
+    return result;
   }
 
-  _placeAnt() {
-    let cell = this._board[0][0];
-    cell.ant = 1;
-  }
-
-  _placeWall() {
-    let wallLength = 25;
-    for(let i = 0; i<wallLength; i++) {
-      this._board[10 + i][20].wall = 1;
-    }
-  }
 }

@@ -6,7 +6,9 @@ export default class Board {
   }
   
   getCell(y, x) {
-    return this.pasture[y][x];
+    if(y >= 0 && y < this.height && x >= 0 && x < this.width) {
+        return this.pasture[y][x];
+      }
   }
 
   fillBoard(cellBuilder){

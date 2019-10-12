@@ -3,5 +3,7 @@ export default class Cell {
     this.element;
     this.snake;
     this.apple;
+    this.ant;
+    this.wall;
   }
 }

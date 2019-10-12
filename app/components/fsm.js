@@ -12,7 +12,7 @@ export default class Fsm {
   }
 
   getCurrentState() {
-    return stack.length > 0 ? stack[stack.length - 1] : null;
+    return this._stack.length > 0 ? this._stack[this._stack.length - 1] : null;
   }
 
   popState() {
