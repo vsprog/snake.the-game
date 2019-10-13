@@ -10,8 +10,8 @@ export default class Game{
     this._threadIds = [];
     this._isStopped = false;
     window.addEventListener('keyup', this._enterKey.bind(this));
-    window.addEventListener('mouseover', this._mouseHandler.bind(this));
-    window.addEventListener('click', this._mouseHandler.bind(this));
+    // window.addEventListener('mouseover', this._mouseHandler.bind(this));
+    // window.addEventListener('click', this._mouseHandler.bind(this));
     
     this._initGame();
     this._startGame();
@@ -26,7 +26,7 @@ export default class Game{
 
   _startGame() {
     this._snake = new Snake(Math.floor(this._board.width / 2), Math.floor(this._board.height / 2), 5, 'Up');
-    this._ant = new Ant(this._board.width - 2, 1);
+    this._ant = new Ant(2, 2);
     this._clearField();
     this._renderApple();
   }
@@ -34,10 +34,12 @@ export default class Game{
   _startThreads() {
     this._gameThread = this._gameThread.bind(this);    
     this._iiThread = this._iiThread.bind(this);
-
+    //this._bonusThread = this._bonusThread.bind(this);
+    
     this._threadIds.push(
       setInterval(this._gameThread, 100), //  1000 / (this._snakeLength - 1) + 200    
       setInterval(this._iiThread, 100),
+      //setInterval(this._bonusThread, 2000),
     );
   }
 
@@ -55,6 +57,20 @@ export default class Game{
     this._ant.updateState(this._board);
   }
 
+  // _bonusThread() {
+  //   //setTimeout
+  //   this._toggleGoldApple();
+  // }
+
+  // _toggleGoldApple() {
+  //   let appleX = Math.floor(Math.random() * this._board.width);
+  //   let appleY = Math.floor(Math.random() * this._board.height);
+  //   let appleCell = this._board.getCell(appleY, appleX);
+  //   if (appleCell.snake == 0 && appleCell.ant == 0 && appleCell.apple == 0) {
+  //     appleCell.bonusApple = 1;
+  //   }
+  // }
+
   _collectApple() {
     let snakeHead = this._board.getCell(this._snake.coordY, this._snake.coordX);
     if (snakeHead.apple === 1) {
@@ -62,7 +78,14 @@ export default class Game{
       this._scoreElement.innerText = ++this._score;
       snakeHead.apple = 0;
       this._renderApple();
+      this._freezeSnake();
     }
+  }
+
+  _freezeSnake() {
+    let antCell = this._board.getCell(this._ant.coordY, this._ant.coordX);
+    this._ant.isFrozen = !this._ant.isFrozen;
+    setTimeout(() => this._ant.isFrozen = !this._ant.isFrozen, 3000);
   }
 
   _updateSnakePosition() {
@@ -89,8 +112,11 @@ export default class Game{
         } else if (cell.ant === 1) {
           ants.push(cell);
           cell.element.classList = 'cell cell_ant';
+          this._toggleAntFreeze(cell.element)
         } else if (cell.apple === 1) {
-          cell.element.classList = 'cell cell_apple';
+          cell.element.classList = 'cell cell__apple cell__apple_red';
+        } else if (cell.bonusApple === 1) {
+          cell.element.classList = 'cell cell__apple cell__apple_gold';
         } else {
           cell.element.classList = 'cell cell_field';
         }
@@ -100,6 +126,14 @@ export default class Game{
       ants.pop();
       ants.forEach(c => c.element.classList = 'cell cell_field');
       ants = [];
+    }
+  }
+
+  _toggleAntFreeze(cellElement) {
+    if(this._ant.isFrozen) {
+      cellElement.classList.add('frozen');
+    } else {
+      cellElement.classList.remove('frozen');
     }
   }
 
@@ -135,7 +169,8 @@ export default class Game{
     let appleX = Math.floor(Math.random() * this._board.width);
     let appleY = Math.floor(Math.random() * this._board.height);
     let appleCell = this._board.getCell(appleY, appleX);
-    if (appleCell.snake == 0 && appleCell.ant == 0) {
+    if (appleCell.snake == 0 && 
+      appleCell.ant == 0) {
       appleCell.apple = 1;
     }
   }
@@ -162,6 +197,7 @@ export default class Game{
     this._snake = null; // костыль, т.к. clearTimeout не работает внутри setTimeout
   }
 
+/*
   _mouseHandler(event) {
     let x = this._ant.coordX;
     let y = this._ant.coordY;
@@ -173,7 +209,7 @@ export default class Game{
         if(!cell) return;
         
         let cellPageCoords = cell.element.getBoundingClientRect();
-        /* курсор на соседе муравья */
+        // курсор на соседе муравья 
         if (cellPageCoords.bottom > event.clientY && 
           cellPageCoords.top < event.clientY && 
           cellPageCoords.left < event.clientX && 
@@ -184,6 +220,7 @@ export default class Game{
       }
     }
   }
+*/
 
   _enterKey(event) {
     switch (event.key) {

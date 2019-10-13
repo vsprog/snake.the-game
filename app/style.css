@@ -75,21 +75,32 @@
 }
 
 .cell_wall {
-  background-color: lightskyblue;
+  background-color: #fff;
 }
 
-.cell_apple {
+.cell__apple {
     position: relative;
     z-index: 9;
+}
 
-/* box-shadow: 0 0 10px 3px rgb(250, 50, 50); */
-
-    animation: blink 2s infinite;
-
+.cell__apple_red {
+    /* box-shadow: 0 0 10px 3px rgb(250, 50, 50); */
+    animation: blink-red 2s infinite;
     background-color: rgb(250, 50, 50);
 }
 
-@keyframes blink {
+.cell__apple_gold {
+    animation: blink-gold 1s infinite;
+    background-color: #FFD700;
+    border-radius: 50%;
+}
+
+.frozen {
+    background-color: lightskyblue;
+    box-shadow: none;
+}
+
+@keyframes blink-red {
     from {
         box-shadow: 0 0 10px 1px rgb(250, 50, 50);
     }
@@ -98,5 +109,17 @@
     }
     to {
         box-shadow: 0 0 10px 1px rgb(250, 50, 50);
+    }
+}
+
+@keyframes blink-gold {
+    from {
+        box-shadow: 0 0 4px 4px rgb(255, 215, 0);
+    }
+    50% {
+        box-shadow: 0 0 6px 6px rgb(255, 215, 0);
+    }
+    to {
+        box-shadow: 0 0 4px 4px rgb(255, 215, 0);
     }
 }

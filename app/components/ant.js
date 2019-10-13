@@ -9,6 +9,7 @@ export default class Ant {
     this.prevY = coordY;
     this._gameField = null;
     this.isRunning = false;
+    this.isFrozen = false;
     
     this._leftHemisphere = new Lee([]);
     this._brain = new Fsm();
@@ -34,6 +35,7 @@ export default class Ant {
     this._brain.update();    
   }
 
+  /* охота, состояние по умолчанию */
   _hunt() {
     let matrix = this._convertGameFieldToMatrix();
     let minDistToSnakeCoord = this._minDistanceToSnake();
@@ -42,41 +44,49 @@ export default class Ant {
     if(!minDistToSnakeCoord || !~this._leftHemisphere.distance) return;
 
     let pathToSnake = this._leftHemisphere.pathFinder(this.coordY, this.coordX, minDistToSnakeCoord[0], minDistToSnakeCoord[1]);
-    let newCoords = pathToSnake[1]; // [0] не работает, разобраться
+    let newCoords = pathToSnake[1]; // [0] не работает
 
     this.move(newCoords[0], newCoords[1], false); 
 
-    if(this.isRunning) {
+    if(this.isFrozen) {
       this._brain.popState();
-      this._brain.pushState(this._runAway.bind(this)); 
+      this._brain.pushState(this._freeze.bind(this)); 
     }
   }
 
-  _runAway() {
-    if(!this.isRunning) {
+  /* замереть на время действия бонуса */
+  _freeze() {
+    this.move(this.coordY, this.coordX, false); 
+
+    if(!this.isFrozen) {
       this._brain.popState(); 
       this._brain.pushState(this._hunt.bind(this)); 
     }
 
   }
+  
+  /* убегать от змеи/курсора */
+  _runAway() {
+
+  }
 
   _convertGameFieldToMatrix(){
     let result = this._gameField.pasture.map(row => row.map(c => c.ant == 1 || c.wall == 1 ?  -1 : 0));
-    
+    //let transpose = m => m[0].map((x,i) => m.map(a => a[i]));
     return result;
   }
 
   _minDistanceToSnake() {
     let arr = this._getFullSnakeCoords();
-    return arr[0];
-    // let distCoords = arr.reduce((acc, curr) => {
-    //   let dist = this._heuristic(curr[0], curr[1], this.coordX, this.coordY);
-    //   acc[dist] = curr;
-    //   return acc;
-    // }, {});
-    // let minDist = Math.min(...Object.keys(distCoords));
+    //return arr[0];
+    let distCoords = arr.reduce((acc, curr) => {
+      let dist = this._heuristic(curr[0], curr[1], this.coordX, this.coordY);
+      acc[dist] = curr;
+      return acc;
+    }, {});
+    let minDist = Math.min(...Object.keys(distCoords));
     
-    // return distCoords[minDist];
+    return distCoords[minDist];
   }
 
   _heuristic(x1, y1, x2, y2) {
