@@ -29,6 +29,7 @@ export default class Game{
     this._ant = new Ant(2, 2);
     this._clearField();
     this._renderApple();
+    this._renderWall();
   }
 
   _startThreads() {
@@ -78,12 +79,11 @@ export default class Game{
       this._scoreElement.innerText = ++this._score;
       snakeHead.apple = 0;
       this._renderApple();
-      this._freezeSnake();
+      this._freezeAnt();
     }
   }
 
-  _freezeSnake() {
-    let antCell = this._board.getCell(this._ant.coordY, this._ant.coordX);
+  _freezeAnt() {
     this._ant.isFrozen = !this._ant.isFrozen;
     setTimeout(() => this._ant.isFrozen = !this._ant.isFrozen, 3000);
   }
@@ -113,6 +113,8 @@ export default class Game{
           ants.push(cell);
           cell.element.classList = 'cell cell_ant';
           this._toggleAntFreeze(cell.element)
+        } else if (cell.wall === 1) {
+          cell.element.classList = 'cell cell_wall';
         } else if (cell.apple === 1) {
           cell.element.classList = 'cell cell__apple cell__apple_red';
         } else if (cell.bonusApple === 1) {
@@ -165,12 +167,20 @@ export default class Game{
     }
   }
 
+  _renderWall() {    
+    for(let i = 7; i < 22; i++) {
+      this._board.getCell(i, 7).wall = 1;
+      this._board.getCell(7, i).wall = 1;
+    }
+  }
+
   _renderApple() {
     let appleX = Math.floor(Math.random() * this._board.width);
     let appleY = Math.floor(Math.random() * this._board.height);
     let appleCell = this._board.getCell(appleY, appleX);
-    if (appleCell.snake == 0 && 
-      appleCell.ant == 0) {
+    if (!appleCell.snake && 
+      !appleCell.ant &&
+      !appleCell.wall) {
       appleCell.apple = 1;
     }
   }
@@ -178,18 +188,17 @@ export default class Game{
   _deathHandler() {
     // сделать несколько жизней
     
-    // Tail collision
+    // Tail collision or meeting the wall
     let snakeHead = this._board.getCell(this._snake.coordY, this._snake.coordX);
-    if (snakeHead.snake > 0) {
+    if (snakeHead.snake > 0 || snakeHead.wall == 1) {
       this._endOfTheGame();
     }
 
     // eaten by ant
-    this._board.pasture.forEach(r => r.forEach(c => {
-      if (c.snake > 0 && c.ant == 1){
-        this._endOfTheGame();
-      }
-    }));
+    let antCell = this._board.getCell(this._ant.coordY, this._ant.coordX);
+    if(antCell.snake > 0) {
+      this._endOfTheGame();
+    }
   }
 
   _endOfTheGame() {
