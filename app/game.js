@@ -100,7 +100,6 @@ export default class Game{
   }
 
   _renderField() {
-    let ants = [];
     for (let y = 0; y < this._board.height; y++) {
       for (let x = 0; x < this._board.width; x++) {
         let cell = this._board.getCell(y, x);
@@ -109,7 +108,6 @@ export default class Game{
           cell.element.classList = 'cell cell_snake';
           cell.snake--;
         } else if (cell.ant === 1) {
-          ants.push(cell);
           cell.element.classList = 'cell cell_ant';
           this._toggleAntFreeze(cell.element)
         } else if (cell.wall === 1) {
@@ -123,19 +121,11 @@ export default class Game{
         }
       }
     }
-    // if(ants.length > 1) {
-    //   ants.pop();
-    //   ants.forEach(c => c.element.classList = 'cell cell_field');
-    //   ants = [];
-    // }
+
   }
 
   _toggleAntFreeze(cellElement) {
-    if(this._ant.isFrozen) {
-      cellElement.classList.add('frozen');
-    } else {
-      cellElement.classList.remove('frozen');
-    }
+    this._ant.isFrozen ? cellElement.classList.add('frozen') : cellElement.classList.remove('frozen');
   }
 
   _drawBoard() {
