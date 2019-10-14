@@ -19,8 +19,6 @@ export default class Game{
   }
 
   _initGame() {
-    this._scoreElement = document.querySelector('#score');
-    this._scoreElement.innerText = this._score;
     this._drawBoard();
   }
 
@@ -34,12 +32,12 @@ export default class Game{
 
   _startThreads() {
     this._gameThread = this._gameThread.bind(this);    
-    this._iiThread = this._iiThread.bind(this);
+    this._aiThread = this._aiThread.bind(this);
     //this._bonusThread = this._bonusThread.bind(this);
     
     this._threadIds.push(
       setInterval(this._gameThread, 100), //  1000 / (this._snakeLength - 1) + 200    
-      setInterval(this._iiThread, 100),
+      setInterval(this._aiThread, 100),
       //setInterval(this._bonusThread, 2000),
     );
   }
@@ -49,11 +47,12 @@ export default class Game{
     this._checkMapEdge();
     this._deathHandler();
     this._collectApple();
+    this._updateScore(this._score);
     this._updateSnakePosition();
     this._renderField();
   }
   
-  _iiThread() {
+  _aiThread() {
     this._updateAntPosition();
     this._ant.updateState(this._board);
   }
@@ -76,7 +75,7 @@ export default class Game{
     let snakeHead = this._board.getCell(this._snake.coordY, this._snake.coordX);
     if (snakeHead.apple === 1) {
       this._snake.length++;
-      this._scoreElement.innerText = ++this._score;
+      this._score += 1;
       snakeHead.apple = 0;
       this._renderApple();
       this._freezeAnt();
@@ -124,11 +123,11 @@ export default class Game{
         }
       }
     }
-    if(ants.length > 1) {
-      ants.pop();
-      ants.forEach(c => c.element.classList = 'cell cell_field');
-      ants = [];
-    }
+    // if(ants.length > 1) {
+    //   ants.pop();
+    //   ants.forEach(c => c.element.classList = 'cell cell_field');
+    //   ants = [];
+    // }
   }
 
   _toggleAntFreeze(cellElement) {
@@ -154,6 +153,11 @@ export default class Game{
 
   _checkMapEdge() {
     this._board.boundlessBoard(this._snake);
+  }
+
+  _updateScore(points) {
+    let elem = document.querySelector('#score');
+    elem.innerText = points;
   }
 
   _clearField() {
@@ -182,6 +186,8 @@ export default class Game{
       !appleCell.ant &&
       !appleCell.wall) {
       appleCell.apple = 1;
+    } else {
+      this._renderApple();
     }
   }
 
@@ -202,7 +208,8 @@ export default class Game{
   }
 
   _endOfTheGame() {
-    this._stopGame('death'); 
+    this._stopGame('death');
+    this._score = 0;
     this._snake = null; // костыль, т.к. clearTimeout не работает внутри setTimeout
   }
 

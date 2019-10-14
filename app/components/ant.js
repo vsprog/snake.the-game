@@ -37,6 +37,12 @@ export default class Ant {
 
   /* охота, состояние по умолчанию */
   _hunt() {
+    if(this.isFrozen) {
+      this._brain.popState();
+      this._brain.pushState(this._freeze.bind(this)); 
+      return;
+    }
+
     let matrix = this._convertGameFieldToMatrix();
     let minDistToSnakeCoord = this._minDistanceToSnake();
     this._leftHemisphere.matrix = matrix;
@@ -47,11 +53,6 @@ export default class Ant {
     let newCoords = pathToSnake[1]; // [0] не работает
 
     this.move(newCoords[0], newCoords[1], false); 
-
-    if(this.isFrozen) {
-      this._brain.popState();
-      this._brain.pushState(this._freeze.bind(this)); 
-    }
   }
 
   /* замереть на время действия бонуса */
