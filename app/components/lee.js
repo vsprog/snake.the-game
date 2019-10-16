@@ -34,7 +34,7 @@ export default class Lee {
       }
     }
     successfulRoute.unshift([y2, x2]); // Add end point
-    //successfulRoute.push([x1, y1]); // Add start point
+    //successfulRoute.push([y1, x1]); // Add start point
     return successfulRoute.reverse(); // Reverse the array so it's at the start
   }
 

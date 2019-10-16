@@ -5,6 +5,7 @@ export default class Cell {
     this.apple;
     this.ant;
     this.wall;
-    this.bonusApple;
+    this.bonus;
   }
+  
 }

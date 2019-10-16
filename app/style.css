@@ -78,18 +78,17 @@
   background-color: #fff;
 }
 
-.cell__apple {
+.cell_apple {
     position: relative;
     z-index: 9;
-}
-
-.cell__apple_red {
     /* box-shadow: 0 0 10px 3px rgb(250, 50, 50); */
     animation: blink-red 2s infinite;
     background-color: rgb(250, 50, 50);
 }
 
-.cell__apple_gold {
+.cell_bonus {
+    position: relative;
+    z-index: 9;
     animation: blink-gold 1s infinite;
     background-color: #FFD700;
     border-radius: 50%;

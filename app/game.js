@@ -26,8 +26,8 @@ export default class Game{
     this._snake = new Snake(Math.floor(this._board.width / 2), Math.floor(this._board.height / 2), 5, 'Up');
     this._ant = new Ant(2, 2);
     this._clearField();
-    this._renderApple();
-    this._renderWall();
+    this._setApplePosition();
+    this._setWallPosition();
   }
 
   _startThreads() {
@@ -77,7 +77,7 @@ export default class Game{
       this._snake.length++;
       this._score += 1;
       snakeHead.apple = 0;
-      this._renderApple();
+      this._setApplePosition();
       this._freezeAnt();
     }
   }
@@ -103,25 +103,38 @@ export default class Game{
     for (let y = 0; y < this._board.height; y++) {
       for (let x = 0; x < this._board.width; x++) {
         let cell = this._board.getCell(y, x);
+        
 
         if (cell.snake > 0) {
-          cell.element.classList = 'cell cell_snake';
+          cell.element.classList = this._classMap('snake');
           cell.snake--;
         } else if (cell.ant === 1) {
-          cell.element.classList = 'cell cell_ant';
+          cell.element.classList = this._classMap('ant');
           this._toggleAntFreeze(cell.element)
         } else if (cell.wall === 1) {
-          cell.element.classList = 'cell cell_wall';
+          cell.element.classList = this._classMap('wall');
         } else if (cell.apple === 1) {
-          cell.element.classList = 'cell cell__apple cell__apple_red';
-        } else if (cell.bonusApple === 1) {
-          cell.element.classList = 'cell cell__apple cell__apple_gold';
+          cell.element.classList = this._classMap('apple');
+        } else if (cell.bonus === 1) {
+          cell.element.classList = this._classMap('bonus');
         } else {
-          cell.element.classList = 'cell cell_field';
+          cell.element.classList = this._classMap('field');
         }
+        
       }
     }
+  }
 
+  _classMap(key) {
+    let map = {
+      'snake': 'cell cell_snake',
+      'ant': 'cell cell_ant',
+      'wall': 'cell cell_wall',
+      'apple': 'cell cell_apple',
+      'bonus': 'cell cell_bonus',
+      'field': 'cell cell_field',
+    };
+    return map[key];
   }
 
   _toggleAntFreeze(cellElement) {
@@ -161,14 +174,14 @@ export default class Game{
     }
   }
 
-  _renderWall() {    
+  _setWallPosition() {    
     for(let i = 7; i < 22; i++) {
       this._board.getCell(i, 7).wall = 1;
       this._board.getCell(7, i).wall = 1;
     }
   }
 
-  _renderApple() {
+  _setApplePosition() {
     let appleX = Math.floor(Math.random() * this._board.width);
     let appleY = Math.floor(Math.random() * this._board.height);
     let appleCell = this._board.getCell(appleY, appleX);
@@ -177,7 +190,7 @@ export default class Game{
       !appleCell.wall) {
       appleCell.apple = 1;
     } else {
-      this._renderApple();
+      this._setApplePosition();
     }
   }
 
