@@ -2,11 +2,11 @@ import Snake from './components/snake.js';
 import Cell from './components/cell.js';
 import Board from './components/board.js';
 import Ant from './components/ant.js';
-import '../node_modules/hammerjs/hammer.js';
+import './components/hammer.min.js';
 
 export default class Game{
   constructor() {
-    this._board = new Board(70, 45);
+    this._board = this._createBoard();
     this._score = 0;
     this._threadIds = [];
     this._isStopped = false;
@@ -29,6 +29,20 @@ export default class Game{
 
   _initGame() {
     this._drawBoard();
+  }
+
+  _createBoard() {
+    let a, b;
+    let isMob = window.outerWidth < 500;
+
+    if (isMob) {
+      a = 30;
+      b = 60;
+    } else {
+      a = 70;
+      b = 45;
+    }
+    return new Board(a, b);
   }
 
   _startGame() {
@@ -299,6 +313,9 @@ export default class Game{
     } else {
       this._startThreads();
       banners.forEach(b => b.classList.add('hidden'));
+      
+      //если умираешь несколько раз подряд отваливается управление на моб
+      this._swipeEvent();
     }    
   }
 
