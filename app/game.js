@@ -2,6 +2,7 @@ import Snake from './components/snake.js';
 import Cell from './components/cell.js';
 import Board from './components/board.js';
 import Ant from './components/ant.js';
+import '../node_modules/hammerjs/hammer.js';
 
 export default class Game{
   constructor() {
@@ -9,13 +10,21 @@ export default class Game{
     this._score = 0;
     this._threadIds = [];
     this._isStopped = false;
-    window.addEventListener('keyup', this._enterKey.bind(this));
-    // window.addEventListener('mouseover', this._mouseHandler.bind(this));
-    // window.addEventListener('click', this._mouseHandler.bind(this));
     
+    this._initEventListeners();
     this._initGame();
     this._startGame();
     this._startThreads();
+  }
+
+  _initEventListeners() {
+    window.addEventListener('keyup', this._enterKey.bind(this));
+    // window.addEventListener('mouseover', this._mouseHandler.bind(this));
+    // window.addEventListener('click', this._mouseHandler.bind(this));
+
+    document.querySelectorAll('.container__layer').forEach(c => c.addEventListener('touchend', () => this._stopGame('pause')));
+    document.querySelector('h1').addEventListener('touchend', () => this._stopGame('pause'));
+    this._swipeEvent();
   }
 
   _initGame() {
@@ -240,7 +249,6 @@ export default class Game{
     }
   }
 */
-
   _enterKey(event) {
     switch (event.key) {
       case 'ArrowUp':
@@ -262,6 +270,17 @@ export default class Game{
         break;
     }
     event.preventDefault();
+  }
+
+  _swipeEvent() {
+    let container = document.querySelector('.container'); 
+    var mc = new Hammer(container);
+    mc.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
+
+    mc.on('swipeleft', () => this._snake.direction !== 'Right' && (this._snake.direction = 'Left') );
+    mc.on('swiperight', () => this._snake.direction !== 'Left' && (this._snake.direction = 'Right') );
+    mc.on('swipeup', () => this._snake.direction !== 'Down' && (this._snake.direction = 'Up') );
+    mc.on('swipedown', () => this._snake.direction !== 'Up' && (this._snake.direction = 'Down') );
   }
 
   _stopGame(reason) {

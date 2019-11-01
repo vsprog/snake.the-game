@@ -122,3 +122,14 @@
         box-shadow: 0 0 4px 4px rgb(255, 215, 0);
     }
 }
+
+
+@media screen and (max-width: 1000px) {
+    .container {
+        height: 90vh;
+    }
+    
+    .container__layer_pause {
+        background-size: 100% 100%;
+    }
+}

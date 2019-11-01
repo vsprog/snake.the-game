@@ -1,11 +1,14 @@
 const browserSync = require('browser-sync');
 
 browserSync({
-	server: "app",
+	port: '3000',
+	server : {
+		baseDir : './app',
+		routes : {
+				'/node_modules' : './node_modules'
+		}
+	},
 	files: [
-		"app/*.html", 
-		"app/css/*.css", 
-		"app/js/*.js",
-		"app/component/js/*.js",
+		'./app/**/*.{html,htm,css,js}'
 	]
 });
