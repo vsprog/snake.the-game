@@ -3,3 +3,4 @@
 /.git
 /yarn.lock
 /.gitignore
+/.package-lock.json
