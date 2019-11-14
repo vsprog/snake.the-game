@@ -35,6 +35,7 @@ export default class Lee {
     }
     successfulRoute.unshift([y2, x2]); // Add end point
     //successfulRoute.push([y1, x1]); // Add start point
+    
     return successfulRoute.reverse(); // Reverse the array so it's at the start
   }
 
@@ -62,10 +63,10 @@ export default class Lee {
   _neighbourCheck(y, x, j, i, y1, x1, value) {
     return this.matrix[j] && (this.matrix[j][i] === value) && // If array x array defined and the matrix value is 0
     !(i === x1 && j === y1) && // If it's not the first square
-    !(i === x && j === y) //&& // If it's not the center square
-    // !(i === x-1 && j === y+1) && /* If it's not the corner squares */
-    // !(i === x-1 && j === y-1) &&  
-    // !(i === x+1 && j === y+1) &&
-    // !(i === x+1 && j === y-1);
+  //  !(i === x && j === y) && //&& // If it's not the center square
+    !(i === x-1 && j === y+1) && /* If it's not the corner squares */
+    !(i === x-1 && j === y-1) &&  
+    !(i === x+1 && j === y+1) &&
+    !(i === x+1 && j === y-1);
   }
 }

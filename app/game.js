@@ -2,7 +2,7 @@ import Snake from './components/snake.js';
 import Cell from './components/cell.js';
 import Board from './components/board.js';
 import Ant from './components/ant.js';
-import './components/hammer.min.js';
+import '../node_modules/hammerjs/hammer.js';
 
 export default class Game{
   constructor() {
@@ -59,8 +59,8 @@ export default class Game{
     //this._bonusThread = this._bonusThread.bind(this);
     
     this._threadIds.push(
-      setInterval(this._gameThread, 100), //  1000 / (this._snakeLength - 1) + 200    
-      setInterval(this._aiThread, 100),
+      setInterval(this._gameThread, 600 / (this._snake.length - 1)),
+      setInterval(this._aiThread, 600 / (this._snake.length - 1) ),
       //setInterval(this._bonusThread, 2000),
     );
   }
@@ -107,7 +107,7 @@ export default class Game{
 
   _freezeAnt() {
     this._ant.isFrozen = !this._ant.isFrozen;
-    setTimeout(() => this._ant.isFrozen = !this._ant.isFrozen, 3000);
+    setTimeout(() => this._ant.isFrozen = !this._ant.isFrozen, 2000);
   }
 
   _updateSnakePosition() {

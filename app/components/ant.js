@@ -16,17 +16,17 @@ export default class Ant {
     this._brain.pushState(this._hunt.bind(this));
   }
 
-  move(y, x, isConvertable) {
+  move(y, x, isReflectable) {
     this.prevX = this.coordX;
     this.prevY = this.coordY;
-    let newX = isConvertable ? this._converCoordinates(x, this.prevX) : x;
-    let newY = isConvertable ? this._converCoordinates(y, this.prevY) : y;
+    let newX = isReflectable ? this._reflectCoordinates(x, this.prevX) : x;
+    let newY = isReflectable ? this._reflectCoordinates(y, this.prevY) : y;
 
     this.coordX = newX;
     this.coordY = newY;
   }
 
-  _converCoordinates(a, b) {
+  _reflectCoordinates(a, b) {
     return a == b ? b : a == (b-1) ? (b+1) : (b-1);
   }
 
@@ -50,7 +50,7 @@ export default class Ant {
     if(!minDistToSnakeCoord || !~this._leftHemisphere.distance) return;
 
     let pathToSnake = this._leftHemisphere.pathFinder(this.coordY, this.coordX, minDistToSnakeCoord[0], minDistToSnakeCoord[1]);
-    let newCoords = pathToSnake[1]; // [0] не работает
+    let newCoords = pathToSnake[0];
 
     this.move(newCoords[0], newCoords[1], false); 
   }
