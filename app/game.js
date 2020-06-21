@@ -47,7 +47,7 @@ export default class Game{
 
   _startGame() {
     this._snake = new Snake(Math.floor(this._board.width / 2), Math.floor(this._board.height / 2), 5, 'Up');
-    this._ant = new Ant(2, 2);
+    this._ant = new Ant(0, 0);
     this._clearField();
     this._setApplePosition();
     this._setWallPosition();
@@ -78,6 +78,7 @@ export default class Game{
   _aiThread() {
     this._updateAntPosition();
     this._ant.updateState(this._board);
+    this._checkSnakeIsClose();
   }
 
   // _bonusThread() {
@@ -102,6 +103,14 @@ export default class Game{
       snakeHead.apple = 0;
       this._setApplePosition();
       this._freezeAnt();
+      this._increaseVisibleRatio();
+    }
+  }
+
+  _increaseVisibleRatio() {
+    if (this._score%5 == 0 && this._score < 20) {
+      this._ant.visibleRatio+=2;
+      console.log(this._ant.visibleRatio);
     }
   }
 
@@ -120,6 +129,22 @@ export default class Game{
     let antPrevCell = this._board.getCell(this._ant.prevY, this._ant.prevX);
     antPrevCell.ant = 0;
     antCell.ant = 1;
+  }
+
+  _checkSnakeIsClose() {
+    let visibleRatio = this._ant.visibleRatio;
+    let visibleCells = [];
+    
+    for (let y = this._ant.coordY - visibleRatio; y < this._ant.coordY + visibleRatio; y++) {
+      for (let x = this._ant.coordX - visibleRatio; x < this._ant.coordX + visibleRatio; x++) {
+        let cell = this._board.getCell(y, x);
+        if (cell) {
+          visibleCells.push(cell);
+        }
+      }
+    }
+
+    this._ant.isSnakeNear = visibleCells.some(c => c.snake > 0);
   }
 
   _renderField() {
