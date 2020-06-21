@@ -4,15 +4,11 @@ export default class Fsm {
   }
 
   update() {
-    let currentState = this.getCurrentState();
+    let currentState = this._getCurrentState();
 
     if(currentState) {
       currentState();
     }
-  }
-
-  getCurrentState() {
-    return this._stack.length > 0 ? this._stack[this._stack.length - 1] : null;
   }
 
   popState() {
@@ -20,8 +16,13 @@ export default class Fsm {
   }
 
   pushState(state) {
-    if (this.getCurrentState() != state) {
+    if (this._getCurrentState() != state) {
       this._stack.push(state);
     }
   }
+
+  _getCurrentState() {
+    return this._stack.length > 0 ? this._stack[this._stack.length - 1] : null;
+  }
+
 }

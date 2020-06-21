@@ -10,10 +10,11 @@ export default class Ant {
     this._gameField = null;
     this.isRunning = false;
     this.isFrozen = false;
-    
-    this._leftHemisphere = new Lee([]);
-    this._brain = new Fsm();
-    this._brain.pushState(this._hunt.bind(this));
+    this.isSnakeNear = false;
+    this.visibleRatio = 15;
+    this.dim = 0;
+
+    this._initBrains();
   }
 
   move(y, x, isReflectable) {
@@ -26,16 +27,41 @@ export default class Ant {
     this.coordY = newY;
   }
 
+  updateState(board) {
+    this._gameField = board;
+    this._brain.update();
+  }
+
+  _initBrains() {
+    this._brain = new Fsm();
+    this._brain.pushState(this._patrol.bind(this));
+
+    this._leftHemisphere = new Lee([]);
+  }
+
   _reflectCoordinates(a, b) {
     return a == b ? b : a == (b-1) ? (b+1) : (b-1);
   }
 
-  updateState(board) {
-    this._gameField = board;
-    this._brain.update();    
+  /* патрулировать */
+  _patrol() {
+    if(this.isFrozen) {
+      this._brain.popState();
+      this._brain.pushState(this._freeze.bind(this)); 
+      return;
+    }
+    
+    if(this.isSnakeNear) {
+      this._brain.popState();
+      this._brain.pushState(this._hunt.bind(this)); 
+      return;
+    }
+    
+    let newCoords = this._moveCounterclockwise();
+    this.move(newCoords[0], newCoords[1], false);
   }
 
-  /* охота, состояние по умолчанию */
+  /* охотиться */
   _hunt() {
     if(this.isFrozen) {
       this._brain.popState();
@@ -43,25 +69,21 @@ export default class Ant {
       return;
     }
 
-    let matrix = this._convertGameFieldToMatrix();
-    let minDistToSnakeCoord = this._minDistanceToSnake();
-    this._leftHemisphere.matrix = matrix;
-
-    if(!minDistToSnakeCoord || !~this._leftHemisphere.distance) return;
-
-    let pathToSnake = this._leftHemisphere.pathFinder(this.coordY, this.coordX, minDistToSnakeCoord[0], minDistToSnakeCoord[1]);
-    let newCoords = pathToSnake[0];
+    let snakeCoordsArray = this._getFullSnakeCoords();
+    let minDistToSnakeCoord = this._findMinDistanceToCellInCoordsArray(snakeCoordsArray);
+    let newCoords = this._findTheWay(minDistToSnakeCoord);
 
     this.move(newCoords[0], newCoords[1], false); 
   }
 
   /* замереть на время действия бонуса */
   _freeze() {
-    this.move(this.coordY, this.coordX, false); 
-
-    if(!this.isFrozen) {
+    if(!this.isFrozen && this.isSnakeNear) {
       this._brain.popState(); 
       this._brain.pushState(this._hunt.bind(this)); 
+    } else {
+      this._brain.popState(); 
+      this._brain.pushState(this._patrol.bind(this)); 
     }
 
   }
@@ -71,16 +93,26 @@ export default class Ant {
 
   }
 
+  _findTheWay(distCoords) {
+    this._leftHemisphere.matrix = this._convertGameFieldToMatrix();
+    let pathToDist = this._leftHemisphere.pathFinder(this.coordY, this.coordX, distCoords[0], distCoords[1]);
+    
+    // if(!pathToDist || !~this._leftHemisphere.distance) {
+    //   return;
+    // }
+
+    return pathToDist[0];
+  }
+
   _convertGameFieldToMatrix(){
     let result = this._gameField.pasture.map(row => row.map(c => c.ant == 1 || c.wall == 1 ?  -1 : 0));
     //let transpose = m => m[0].map((x,i) => m.map(a => a[i]));
     return result;
   }
 
-  _minDistanceToSnake() {
-    let arr = this._getFullSnakeCoords();
-    //return arr[0];
-    let distCoords = arr.reduce((acc, curr) => {
+  _findMinDistanceToCellInCoordsArray(coords) {
+    //return coords[0];
+    let distCoords = coords.reduce((acc, curr) => {
       let dist = this._heuristic(curr[0], curr[1], this.coordX, this.coordY);
       acc[dist] = curr;
       return acc;
@@ -92,6 +124,30 @@ export default class Ant {
 
   _heuristic(x1, y1, x2, y2) {
     return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+  }
+
+  _moveCounterclockwise() {
+    for(let row = this.coordY, col = this.coordX; this.dim < 4;) {
+      switch(this.dim) {
+        case 0: 
+          if(++row == this._gameField.height - 1)
+            ++this.dim;
+          break;
+        case 1: 
+          if(++col == this._gameField.width - 1)
+            ++this.dim; 
+          break;
+        case 2: 
+          if(--row == 0)
+            ++this.dim;
+          break;
+        case 3:
+          if(--col == 0)
+            this.dim = 0;
+          break;
+      }
+      return [row, col];
+    }
   }
 
   _getFullSnakeCoords() {
