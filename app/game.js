@@ -50,7 +50,7 @@ export default class Game{
     this._ant = new Ant(0, 0);
     this._clearField();
     this._setApplePosition();
-    this._setWallPosition();
+    this._drawWall();
   }
 
   _startThreads() {
@@ -222,10 +222,13 @@ export default class Game{
     }
   }
 
-  _setWallPosition() {    
+  _drawWall() {
     for(let i = 7; i < 22; i++) {
       this._board.getCell(i, 7).wall = 1;
       this._board.getCell(7, i).wall = 1;
+
+      this._board.getCell(this._board.height - i, this._board.width - 7).wall = 1;
+      this._board.getCell(this._board.height - 7 , this._board.width - i).wall = 1;
     }
   }
 
