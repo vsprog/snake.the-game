@@ -17,10 +17,12 @@ export default class Lee {
         let y = y2;
 
         while ( !(x === x1 && y === y1) ) {
+            var toBreak = false;
             for (let j = y-1; j < y+2; j++)  {  // -1, 0, 1
                 for (let i = x-1; i < x+2; i++) { // -1, 0, 1
                     if (this.matrix[j] && (this.matrix[j][i] === previousValue -1) && // If array x array defined and the matrix value is 0
-                        !(i === x && j === y) ) {
+                        !(i === x && j === y) && 
+                        !(i === x1 && j === y1)) {
                         previousValue = this.matrix[j][i];
                         successfulRoute.push([j, i]);
                         x = i;
@@ -29,8 +31,13 @@ export default class Lee {
                     } else if (successfulRoute.length == this.matrix[y2][x2] - 1) { // If we got to the end of the route
                         x = x1;
                         y = y1; // Break the while loop
+                        toBreak = true;
+                        break;
                     }
                 }
+                
+                if (toBreak)
+                    break;
             }
         }
         successfulRoute.unshift([y2, x2]); // Add end point
