@@ -58,11 +58,11 @@ export default class Game{
     this._aiThread = this._aiThread.bind(this);
     //this._bonusThread = this._bonusThread.bind(this);
     
-    this._threadIds.push(
+    this._threadIds = [
       setInterval(this._gameThread, 600 / (this._snake.length - 1)),
       setInterval(this._aiThread, 600 / (this._snake.length - 1) ),
       //setInterval(this._bonusThread, 2000),
-    );
+    ];
   }
 
   _gameThread() {    
