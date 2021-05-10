@@ -108,7 +108,7 @@ export default class Game{
   }
 
   _increaseVisibleRatio() {
-    if (this._score%5 == 0 && this._score < 20) {
+    if (this._score % 5 === 0 && this._score < 20) {
       this._ant.visibleRatio+=2;
       console.log(this._ant.visibleRatio);
     }
@@ -250,7 +250,7 @@ export default class Game{
     
     // Tail collision or meeting the wall
     let snakeHead = this._board.getCell(this._snake.coordY, this._snake.coordX);
-    if (snakeHead.snake > 0 || snakeHead.wall == 1) {
+    if (snakeHead.snake > 0 || snakeHead.wall === 1) {
       this._endOfTheGame();
     }
 
@@ -314,9 +314,10 @@ export default class Game{
     event.preventDefault();
   }
 
+// TODO: создать метод setDirection
   _swipeEvent() {
-    let container = document.querySelector('.container'); 
-    var mc = new Hammer(container);
+    const container = document.querySelector('.container');
+    const mc = new Hammer(container);
     mc.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
 
     mc.on('swipeleft', () => this._snake.direction !== 'Right' && (this._snake.direction = 'Left') );
