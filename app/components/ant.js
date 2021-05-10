@@ -105,7 +105,7 @@ export default class Ant {
     }
 
     _convertGameFieldToMatrix(){
-        let result = this._gameField.pasture.map(row => row.map(c => c.ant || c.wall ?  -1 : 0));
+        let result = this._gameField.pasture.map(row => row.map(c => c.wall ?  -1 : 0));
         //let transpose = m => m[0].map((x,i) => m.map(a => a[i]));
         return result;
     }
