@@ -130,27 +130,34 @@ export default class Ant {
         let row = this.coordY;
         let col = this.coordX;
 
-        while (this.dim < 4) {
+        let matrix = this._convertGameFieldToMatrix();
+
+        while (this.coordY === row && this.coordX === col) {
             switch(this.dim) {
                 case 0:
-                    if(++row === this._gameField.height - 1)
+                    if ((matrix[row+1] && matrix[row+1][col] !== 0) || ++row === this._gameField.height - 1)
                         ++this.dim;
+
                     break;
                 case 1:
-                    if(++col === this._gameField.width - 1)
+                    if ((matrix[row] && matrix[row][col+1] !== 0) || ++col === this._gameField.width - 1)
                         ++this.dim;
+
                     break;
                 case 2:
-                    if(--row === 0)
+                    if ((matrix[row-1] && matrix[row-1][col] !== 0) || --row === 0)
                         ++this.dim;
+     
                     break;
                 case 3:
-                    if(--col === 0)
+                    if ((matrix[row] && matrix[row][col-1] !== 0) || --col === 0)
                         this.dim = 0;
+
                     break;
             }
-            return [row, col];
         }
+        
+        return [row, col];
     }
 
     _getFullSnakeCoords() {
