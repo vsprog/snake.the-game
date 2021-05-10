@@ -69,9 +69,9 @@ export default class Ant {
             return;
         }
 
-        let snakeCoordsArray = this._getFullSnakeCoords();
-        let minDistToSnakeCoord = this._findMinDistanceToCellInCoordsArray(snakeCoordsArray);
-        let newCoords = this._findTheWay(minDistToSnakeCoord);
+        let huntCoords = this._getHuntCoords();
+        let minDistToHuntCoord = this._findMinDistanceToCellInCoordsArray(huntCoords);
+        let newCoords = this._findTheWay(minDistToHuntCoord);
 
         this.move(newCoords[0], newCoords[1], false);
     }
@@ -153,11 +153,11 @@ export default class Ant {
         }
     }
 
-    _getFullSnakeCoords() {
+    _getHuntCoords() {
         let result = [];
         this._gameField.pasture.forEach((row, j) => {
             row.forEach((c, i) => {
-                if(c.snake > 0) {
+                if(c.snake > 0 || c.apple > 0) {
                     result.push([j, i]);
                 }
             });

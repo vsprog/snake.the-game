@@ -48,6 +48,7 @@ export default class Game{
   _startGame() {
     this._snake = new Snake(Math.floor(this._board.width / 2), Math.floor(this._board.height / 2), 5, 'Up');
     this._ant = new Ant(0, 0);
+    this._maxAntVisibleRatio = this._ant.visibleRatio + 6;
     this._clearField();
     this._setApplePosition();
     this._drawWall();
@@ -103,14 +104,28 @@ export default class Game{
       snakeHead.apple = 0;
       this._setApplePosition();
       this._freezeAnt();
-      this._increaseVisibleRatio();
+      this._updateVisibleRatio(true);
+    }
+    
+    let antHead = this._board.getCell(this._ant.coordY, this._ant.coordX);
+    if (antHead.apple === 1) {
+        antHead.apple = 0;      
+        this._setApplePosition();
+        
+        if (this._score > 0)
+            this._score -= 1;
+        
+        this._updateVisibleRatio(false);
     }
   }
 
-  _increaseVisibleRatio() {
-    if (this._score%5 == 0 && this._score < 20) {
-      this._ant.visibleRatio+=2;
-      console.log(this._ant.visibleRatio);
+  _updateVisibleRatio(increase) {
+    if (this._score%5 == 0 && this._score > 0)
+    {
+        if (increase && this._ant.visibleRatio < this._maxAntVisibleRatio)
+            this._ant.visibleRatio+=2;
+        else
+            this._ant.visibleRatio-=2;
     }
   }
 
