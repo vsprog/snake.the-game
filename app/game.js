@@ -101,6 +101,10 @@ export default class Game{
       this._snake.length++;
       this._score += 1;
       snakeHead.apple = 0;
+      
+      if (this._score % 10 === 0)
+        this._setApplePosition();
+  
       this._setApplePosition();
       this._freezeAnt();
       this._increaseVisibleRatio();
@@ -238,7 +242,8 @@ export default class Game{
     let appleCell = this._board.getCell(appleY, appleX);
     if (!appleCell.snake && 
       !appleCell.ant &&
-      !appleCell.wall) {
+      !appleCell.wall &&
+      !appleCell.apple) {
       appleCell.apple = 1;
     } else {
       this._setApplePosition();
