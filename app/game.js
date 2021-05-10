@@ -223,13 +223,48 @@ export default class Game{
   }
 
   _drawWall() {
-    for(let i = 7; i < 22; i++) {
-      this._board.getCell(i, 7).wall = 1;
-      this._board.getCell(7, i).wall = 1;
+    let wallCount = Math.floor(Math.random() * 6);
+    let currentWall = 0;
+    
+    while (currentWall < wallCount)
+    {
+        let wallX = Math.floor(Math.random() * this._board.width);
+        let wallY = Math.floor(Math.random() * this._board.height);
+        let wallLength = Math.floor(Math.random() * 20);  
+        let dim = Math.floor(Math.random() * 4);
+        
+        let getCell = (n) => this._board.getCell(wallX + n, wallY);
+        switch(dim)
+        {
+            case 1: 
+                getCell = (n) => this._board.getCell(wallX, wallY + n);
+                break;
+            case 2: 
+                getCell = (n) => this._board.getCell(wallX - n, wallY);
+                break;
+            case 3: 
+                getCell = (n) => this._board.getCell(wallX, wallY - n);
+                break;
+        }
+        
+        let checkedWall = true;
+        for(let i = 0; i < wallLength; i++) {
+            let cell = getCell(i);
+            if (cell === undefined || cell.snake || cell.ant || cell.apple)
+            {
+                checkedWall = false;
+                break;
+            }
+        }
+        
+        if (!checkedWall)
+            continue;
+        
+        for(let i = 0; i < wallLength; i++)
+            getCell(i).wall = 1;
 
-      this._board.getCell(this._board.height - i, this._board.width - 7).wall = 1;
-      this._board.getCell(this._board.height - 7 , this._board.width - i).wall = 1;
-    }
+        currentWall++;
+    }   
   }
 
   _setApplePosition() {
