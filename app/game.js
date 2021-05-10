@@ -233,24 +233,26 @@ export default class Game{
         let wallLength = Math.floor(Math.random() * 20);  
         let dim = Math.floor(Math.random() * 4);
         
-        let getCell = (n) => this._board.getCell(wallX + n, wallY);
+        let getCoord = (n) => [wallY, wallX + n];
         switch(dim)
         {
             case 1: 
-                getCell = (n) => this._board.getCell(wallX, wallY + n);
+                getCoord = (n) => [wallY + n, wallX];
                 break;
             case 2: 
-                getCell = (n) => this._board.getCell(wallX - n, wallY);
+                getCoord = (n) => [wallY, wallX - n];
                 break;
             case 3: 
-                getCell = (n) => this._board.getCell(wallX, wallY - n);
+                getCoord = (n) => [wallY - n, wallX];
                 break;
         }
         
         let checkedWall = true;
         for(let i = 0; i < wallLength; i++) {
-            let cell = getCell(i);
-            if (cell === undefined || cell.snake || cell.ant || cell.apple)
+            let coord = getCoord(i);
+            let cell = this._board.getCell(coord[0], coord[1]);
+            if (cell === undefined || cell.snake || cell.ant || cell.apple || 
+                coord[0] === 0 || coord[0] == this._board.height-1 || coord[1] === 0 || coord[1] == this._board.width-1)
             {
                 checkedWall = false;
                 break;
@@ -261,8 +263,11 @@ export default class Game{
             continue;
         
         for(let i = 0; i < wallLength; i++)
-            getCell(i).wall = 1;
-
+        {
+            let coord = getCoord(i);
+            let cell = this._board.getCell(coord[0], coord[1]).wall = 1;
+        }
+            
         currentWall++;
     }   
   }
