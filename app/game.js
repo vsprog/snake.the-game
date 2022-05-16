@@ -65,8 +65,7 @@ export default class Game{
     ];
   }
 
-  _gameThread() {    
-    this._keyPressed = false;
+  _gameThread() {
     this._snake.move();
     this._checkMapEdge();
     this._deathHandler();
@@ -295,35 +294,21 @@ export default class Game{
   _enterKey(event) {         
     switch (event.key) {
       case 'ArrowUp':
-        if (!this._keyPressed && this._snake.direction !== 'Down')
-        {
-            this._keyPressed = true;
-            this._snake.direction = 'Up';
-        }            
+        this._snake.direction !== 'Down' && (this._snake.direction = 'Up');
         break;
       case 'ArrowDown':
-        if (!this._keyPressed && this._snake.direction !== 'Up')
-        {
-            this._keyPressed = true;
-            this._snake.direction = 'Down';
-        }
+        this._snake.direction !== 'Up' && (this._snake.direction = 'Down');
         break;
       case 'ArrowLeft':
-        if (!this._keyPressed && this._snake.direction !== 'Right')
-        {
-            this._keyPressed = true;
-            this._snake.direction = 'Left';
-        }
+        this._snake.direction !== 'Right' && (this._snake.direction = 'Left');
         break;
       case 'ArrowRight':
-        if (!this._keyPressed && this._snake.direction !== 'Left')
-        {
-            this._keyPressed = true;
-            this._snake.direction = 'Right';   
-        }
+        this._snake.direction !== 'Left' && (this._snake.direction = 'Right');
         break;
       case 'Escape':
         this._stopGame('pause');
+        break;
+      default:
         break;
     }
     
