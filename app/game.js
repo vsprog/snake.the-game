@@ -12,8 +12,8 @@ export default class Game{
     this._isStopped = false;
     
     this._initEventListeners();
+    this._drawBoard();
     this._initGame();
-    this._startGame();
     this._startThreads();
   }
 
@@ -24,28 +24,10 @@ export default class Game{
 
     document.querySelectorAll('.container__layer').forEach(c => c.addEventListener('touchend', () => this._stopGame('pause')));
     document.querySelector('h1').addEventListener('touchend', () => this._stopGame('pause'));
-    this._swipeEvent();
+    this._swipeEventHandler();
   }
 
   _initGame() {
-    this._drawBoard();
-  }
-
-  _createBoard() {
-    let a, b;
-    let isMob = window.outerWidth < 500;
-
-    if (isMob) {
-      a = 30;
-      b = 60;
-    } else {
-      a = 70;
-      b = 45;
-    }
-    return new Board(a, b);
-  }
-
-  _startGame() {
     this._snake = new Snake(Math.floor(this._board.width / 2), Math.floor(this._board.height / 2), 5, 'Up');
     this._ant = new Ant(0, 0);
     this._clearField();
@@ -53,15 +35,18 @@ export default class Game{
     this._drawWall();
   }
 
-  _startThreads() {
-    this._gameThread = this._gameThread.bind(this);    
-    this._aiThread = this._aiThread.bind(this);
-    //this._bonusThread = this._bonusThread.bind(this);
+  _createBoard() {
+    let isMob = window.outerWidth < 500;
+    return isMob ? new Board(30, 60) : new Board(70, 45);
+  }
+
+  _startThreads(time = 150) {
+    const gt = this._gameThread.bind(this);    
+    const at = this._aiThread.bind(this);
     
     this._threadIds = [
-      setInterval(this._gameThread, 600 / (this._snake.length - 1)),
-      setInterval(this._aiThread, 600 / (this._snake.length - 1) ),
-      //setInterval(this._bonusThread, 2000),
+      setInterval(gt, time),
+      setInterval(at, time),
     ];
   }
 
@@ -81,14 +66,9 @@ export default class Game{
     this._checkSnakeIsClose();
   }
 
-  // _bonusThread() {
-  //   //setTimeout
-  //   this._toggleGoldApple();
-  // }
-
-  // _toggleGoldApple() {
-  //   let appleX = Math.floor(Math.random() * this._board.width);
-  //   let appleY = Math.floor(Math.random() * this._board.height);
+  // _toggleGoldenApple() {
+  //   let appleX = this._randomRange(this._board.width - 1);
+  //   let appleY = this._randomRange(this._board.height - 1);
   //   let appleCell = this._board.getCell(appleY, appleX);
   //   if (appleCell.snake == 0 && appleCell.ant == 0 && appleCell.apple == 0) {
   //     appleCell.bonusApple = 1;
@@ -99,9 +79,9 @@ export default class Game{
     let snakeHead = this._board.getCell(this._snake.coordY, this._snake.coordX);
     
     if (snakeHead.apple === 1) {
+      snakeHead.apple = 0;
       this._snake.length++;
       this._score += 1;
-      snakeHead.apple = 0;
       this._setApplePosition();
       this._freezeAnt();
       this._increaseVisibleRatio();
@@ -240,14 +220,14 @@ export default class Game{
 
     this._clearWalls();
 
-    let wallCount = Math.floor(Math.random() * 6);
+    let wallCount = this._randomRange(8, 2);
     let currentWall = 0;
 
     while (currentWall < wallCount) {
-      let wallX = Math.floor(Math.random() * this._board.width);
-      let wallY = Math.floor(Math.random() * this._board.height);
-      let wallLength = Math.floor(Math.random() * 20);  
-      let dim = Math.floor(Math.random() * 4);
+      let wallX = this._randomRange(this._board.width - 1);
+      let wallY = this._randomRange(this._board.height - 1);
+      let wallLength = this._randomRange(20, 3);
+      let dim = this._randomRange(4);
 
       let getCoord = (n) => [wallY, wallX + n];
       
@@ -288,8 +268,8 @@ export default class Game{
   }
 
   _setApplePosition() {
-    let appleX = Math.floor(Math.random() * this._board.width);
-    let appleY = Math.floor(Math.random() * this._board.height);
+    let appleX = this._randomRange(this._board.width - 1);
+    let appleY = this._randomRange(this._board.height - 1);
     let appleCell = this._board.getCell(appleY, appleX);
     if (!appleCell.snake && 
       !appleCell.ant &&
@@ -319,7 +299,7 @@ export default class Game{
   _endOfTheGame() {
     this._stopGame('death');
     this._score = 0;
-    this._snake = null; // костыль, т.к. clearTimeout не работает внутри setTimeout
+    this._snake = null;
   }
 
 /*
@@ -371,7 +351,7 @@ export default class Game{
   }
 
 // TODO: создать метод setDirection
-  _swipeEvent() {
+  _swipeEventHandler() {
     const container = document.querySelector('.container');
     const mc = new Hammer(container);
     mc.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
@@ -388,7 +368,7 @@ export default class Game{
     let banners = document.querySelectorAll('.container__layer');
     
     if(!this._snake) {
-      this._startGame();
+      this._initGame();
       console.clear();
     }
 
@@ -400,8 +380,12 @@ export default class Game{
       banners.forEach(b => b.classList.add('hidden'));
       
       //если умираешь несколько раз подряд отваливается управление на моб
-      this._swipeEvent();
+      this._swipeEventHandler();
     }    
+  }
+
+  _randomRange(max, min = 0) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
 }
