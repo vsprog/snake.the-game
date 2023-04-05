@@ -1,4 +1,4 @@
-# snake.the-game
+# Snake. The game
 
 The classic Snake game gets an exciting twist with the addition of an AI that tries to interfere with the snake's quest to collect apples. In this version, the player controls the snake as usual, moving it around the screen to eat the apples and grow longer. However, there is an AI-controlled ant is introduced as an additional challenge for the player. The ant has three distinct states that it cycles through as it tries to interfere with the snake's quest to collect apples.
  
