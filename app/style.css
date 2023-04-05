@@ -4,14 +4,15 @@
 }
 
 .container {
+    width: calc(70 * 13px);
+    margin: auto;
     text-align: center;
-
     font-family: Helvetica, Arial, Helvetica, sans-serif;
 }
 
 #score {
     margin-top: .5em;
-    margin-bottom: 2em;
+    margin-bottom: 1em;
 
     font-size: 20px;
     font-weight: 600;
@@ -39,11 +40,6 @@
 
 .hidden {
     display: none;
-}
-
-.container__board {
-    width: calc(70 * 13px);
-    margin: auto;
 }
 
 .container__board:after {
@@ -111,6 +107,20 @@
 .frozen {
     background-color: lightskyblue;
     box-shadow: none;
+}
+
+.container__frequency {
+    margin-bottom: 1em;
+    display: flex;
+    justify-content: end;
+}
+
+.frequency {
+    margin-right: 10px;
+}
+
+.frequency-input {
+    width: 50px;
 }
 
 @keyframes blink-red {
