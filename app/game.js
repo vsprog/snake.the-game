@@ -7,6 +7,7 @@ import '../node_modules/hammerjs/hammer.js';
 export default class Game{
   constructor() {
     this._board = this._createBoard();
+    this._time = 200;
     this._score = 0;
     this._threadIds = [];
     this._isStopped = false;
@@ -40,13 +41,13 @@ export default class Game{
     return isMob ? new Board(30, 60) : new Board(70, 45);
   }
 
-  _startThreads(time = 150) {
+  _startThreads() {
     const gt = this._gameThread.bind(this);    
     const at = this._aiThread.bind(this);
     
     this._threadIds = [
-      setInterval(gt, time),
-      setInterval(at, time),
+      setInterval(gt, this._time),
+      setInterval(at, this._time),
     ];
   }
 
@@ -86,6 +87,7 @@ export default class Game{
       this._freezeAnt();
       this._increaseVisibleRatio();
       this._drawWall();
+      this._speedUp();
     }
   }
 
@@ -93,6 +95,14 @@ export default class Game{
     if (this._score % 5 === 0 && this._score < 20) {
       this._ant.visibleRatio+=2;
       console.log(this._ant.visibleRatio);
+    }
+  }
+
+  _speedUp() {
+    if (this._score > 0 && this._score < 20 && this._score % 2 === 0) {
+      this._time = 200 - this._score*5;
+      this._threadIds.forEach(id => clearInterval(id));
+      this._startThreads();
     }
   }
 
@@ -367,9 +377,13 @@ export default class Game{
     let banner = document.querySelector(`.container__layer_${reason}`);
     let banners = document.querySelectorAll('.container__layer');
     
-    if(!this._snake) {
+    if (!this._snake) {
       this._initGame();
       console.clear();
+    }
+
+    if (reason === 'death') {
+      this._time = 200;
     }
 
     if (this._isStopped) {
