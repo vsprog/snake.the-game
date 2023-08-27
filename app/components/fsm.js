@@ -16,7 +16,7 @@ export default class Fsm {
   }
 
   pushState(state) {
-    if (this._getCurrentState() != state) {
+    if (this._getCurrentState() !== state) {
       this._stack.push(state);
     }
   }

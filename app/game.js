@@ -37,8 +37,12 @@ export default class Game{
   }
 
   _createBoard() {
-    let isMob = window.outerWidth < 500;
-    return isMob ? new Board(30, 60) : new Board(70, 45);
+    let UA = navigator.userAgent;
+    let hasTouchScreen = (
+        /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
+        /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA)
+    );
+    return hasTouchScreen ? new Board(30, 60) : new Board(70, 45);
   }
 
   _startThreads() {
@@ -260,7 +264,7 @@ export default class Game{
         let coord = getCoord(i);
         let cell = this._board.getCell(coord[0], coord[1]);
         
-        if (cell === undefined || cell.wall || cell.snake || cell.ant || cell.apple || coord[0] === 0 || coord[0] == this._board.height-1 || coord[1] === 0 || coord[1] == this._board.width-1) {
+        if (cell === undefined || cell.wall || cell.snake || cell.ant || cell.apple || coord[0] === 0 || coord[0] === this._board.height-1 || coord[1] === 0 || coord[1] === this._board.width-1) {
             checkedWall = false;
             break;
           }
@@ -270,7 +274,7 @@ export default class Game{
 
       for(let i = 0; i < wallLength; i++) { 
         let coord = getCoord(i);
-        let cell = this._board.getCell(coord[0], coord[1]).wall = 1;
+        this._board.getCell(coord[0], coord[1]).wall = 1;
       }
 
       currentWall++;
